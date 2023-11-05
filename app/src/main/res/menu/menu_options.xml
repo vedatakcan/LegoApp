@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/addCategory"
+        android:title="PDF ekle"
+        android:icon="@drawable/add"/>
+
+    <item
+        android:id="@+id/addImage"
+        android:title="Görsel ekle"
+        android:icon="@drawable/add"/>
+
+
+</menu>

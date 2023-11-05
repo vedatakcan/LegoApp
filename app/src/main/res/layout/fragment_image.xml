@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ImageFragment">
+
+    <ImageView
+        android:id="@+id/btnHome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/home"
+        android:background="@color/yellow"
+        android:layout_margin="12dp"/>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+
+        <ImageView
+            android:id="@+id/imageId"
+            android:layout_width="400dp"
+            android:layout_height="280dp"
+            android:src="@drawable/wordlingo_logo"
+            android:layout_gravity="center_horizontal"
+            android:background="@color/yellow"
+            android:layout_margin="12dp"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/home"
+            android:background="@color/yellow"
+            android:layout_margin="12dp"/>
+
+        <ImageView
+            android:id="@+id/btnNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/home"
+            android:background="@color/yellow"
+            android:layout_marginStart="584dp"/>
+    </LinearLayout>
+
+
+
+</LinearLayout>
