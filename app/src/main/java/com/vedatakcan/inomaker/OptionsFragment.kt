@@ -19,6 +19,8 @@ import androidx.core.view.MenuProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import com.google.firebase.firestore.FirebaseFirestore
 import com.vedatakcan.inomaker.databinding.FragmentOptionsBinding
 
 
@@ -26,9 +28,9 @@ class OptionsFragment : Fragment(), MenuProvider {
 
     private lateinit var binding: FragmentOptionsBinding
     private lateinit var navController: NavController
-
-
-    private val categoryList = ArrayList<CategoriesModel>()
+    private lateinit var database: FirebaseFirestore
+    private lateinit var categoriesAdapter: CategoriesAdapter
+    private val categoriesList = ArrayList<CategoriesModel>()
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,8 +45,41 @@ class OptionsFragment : Fragment(), MenuProvider {
     ): View? {
 
         binding = FragmentOptionsBinding.inflate(inflater, container, false)
+        database = FirebaseFirestore.getInstance()
+        categoriesAdapter = CategoriesAdapter()
 
+        binding.recyclerView.apply {
+            binding.recyclerView.layoutManager = GridLayoutManager(requireContext(), 4)
+            binding.recyclerView.adapter = categoriesAdapter
+        }
+
+
+
+        getCategories()
         return binding.root
+    }
+
+    private fun getCategories() {
+        categoriesList.clear()
+        database.collection("Categories")
+            .whereEqualTo("active", true)
+            .get()
+            .addOnCompleteListener { response ->
+                if(response.isSuccessful){
+                    categoriesList.clear()
+                    for (data in response.result){
+                        categoriesList.add(
+                            CategoriesModel(
+                                categoryId = data.id,
+                                categoryName = data.get("categoryName") as String,
+                                active = data.get("active") as Boolean
+                            )
+                        )
+                    }
+                    categoriesAdapter.submitData(categoriesList)
+                }
+            }
+
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -107,7 +142,7 @@ class OptionsFragment : Fragment(), MenuProvider {
     }
 
     private fun navigateToPdfUploadPage() {
-        navController.navigate(R.id.action_optionsFragment_to_categoryAndImageAddFragment)
+        navController.navigate(R.id.action_optionsFragment_to_addCategoryFragment)
     }
 
 

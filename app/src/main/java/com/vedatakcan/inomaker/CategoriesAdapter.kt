@@ -42,8 +42,8 @@ class CategoriesAdapter(
          RecyclerView.ViewHolder(binding.root){
         fun bind(categoriesModel: CategoriesModel){
             binding.apply {
-                tvCategoryName.text = categoriesModel.categoryName
-                ivCategoryImage.imageAlpha = categoriesModel.categoryImage
+                categoriesName.text = categoriesModel.categoryName
+
             }
             itemView.setOnClickListener{
                 val categoryId = categoriesModel.categoryId
