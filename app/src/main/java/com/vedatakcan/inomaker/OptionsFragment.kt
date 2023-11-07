@@ -53,8 +53,6 @@ class OptionsFragment : Fragment(), MenuProvider {
             binding.recyclerView.adapter = categoriesAdapter
         }
 
-
-
         getCategories()
         return binding.root
     }
