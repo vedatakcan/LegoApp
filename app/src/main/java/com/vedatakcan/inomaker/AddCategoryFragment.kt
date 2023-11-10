@@ -2,6 +2,8 @@ package com.vedatakcan.inomaker
 
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
@@ -113,11 +115,30 @@ class AddCategoryFragment : Fragment() {
             .add(CategoriesModel(categoryName = categoryName, active = isActive, imageUrl = imageUrl))
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Kategori Eklendi", Toast.LENGTH_LONG).show()
+
+                showDialog()
                 navController.navigate(R.id.action_addCategoryFragment_to_optionsFragment)
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Kategori eklenemedi.", Toast.LENGTH_LONG).show()
             }
+    }
+
+    private fun showDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Kategoriye ait resimleri ekle.")
+
+        builder.setPositiveButton("Ekle", DialogInterface.OnClickListener {dialog, which ->
+            toUploadImage()
+        })
+
+        builder.setNegativeButton("Daha sonra",DialogInterface.OnClickListener { dialog, which ->
+            dialog.cancel()
+        })
+    }
+
+    private fun toUploadImage() {
+       // Resim ekleme sayfasına gidilecek.
     }
 
     override fun onResume() {
