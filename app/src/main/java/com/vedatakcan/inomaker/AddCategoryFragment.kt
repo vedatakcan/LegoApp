@@ -1,7 +1,12 @@
 package com.vedatakcan.inomaker
 
 
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,78 +16,72 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.vedatakcan.inomaker.databinding.FragmentAddCategoryBinding
-
+import java.util.UUID
 
 
 class AddCategoryFragment : Fragment() {
+
+    var selectedGorsel: Uri? = null
+    var selectedBitmap: Bitmap? = null
+
+    private lateinit var storage: FirebaseStorage
     private lateinit var binding: FragmentAddCategoryBinding
     private lateinit var database: FirebaseFirestore
     private lateinit var navController: NavController
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Toast.makeText(context, "ADD category", Toast.LENGTH_LONG).show()
+    companion object {
+        private const val GALLERY_REQUEST_CODE = 1
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         binding = FragmentAddCategoryBinding.inflate(inflater, container, false)
-
         return binding.root
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         navController = Navigation.findNavController(view)
-
         database = FirebaseFirestore.getInstance()
+        storage = FirebaseStorage.getInstance()
 
         binding.btnAddCategory.setOnClickListener {
             addCategory()
-            navController.navigate(R.id.action_addCategoryFragment_to_optionsFragment)
         }
 
         binding.ivAddCategoryImage.setOnClickListener {
             uploadPhotos()
         }
-
-
     }
 
     private fun uploadPhotos() {
-        // Resim yükleme işlemleri burada gerçekleştirilir.
-        // ...
+        val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == GALLERY_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            selectedGorsel = data.data
+            selectedBitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, selectedGorsel)
+            binding.ivAddCategoryImage.setImageBitmap(selectedBitmap)
+        }
     }
 
     private fun addCategory() {
-
         if (isValid()) {
+            // Depo işlemleri
+            val uuid = UUID.randomUUID()
+            val gorselIsmi = "${uuid}.jpg"
 
-            val categoryName = binding.tiCategoryName.text.toString()
-            val isActive = binding.cbCategory.isChecked
-
-
-            database.collection("Categories")
-                .add(CategoriesModel(categoryName = categoryName, active = isActive))
-                .addOnSuccessListener {
-                    Toast.makeText(
-                        requireContext(),
-                        "Kategori Eklendi",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }.addOnFailureListener {
-                    Toast.makeText(requireContext(), "Kategori eklenemedi.", Toast.LENGTH_LONG).show()
-                }
+            uploadImageToFirebaseStorage()
         } else {
-            Toast.makeText(requireContext(), "Lütfen kategori alanını doldur", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "Lütfen kategori alanını doldurun", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -91,20 +90,43 @@ class AddCategoryFragment : Fragment() {
         return !categoryName.isNullOrEmpty() && categoryName.isNotBlank()
     }
 
+    private fun uploadImageToFirebaseStorage() {
+        selectedGorsel?.let { uri ->
+            val ref = storage.reference.child("category_images/${UUID.randomUUID()}.jpg")
+            ref.putFile(uri)
+                .addOnSuccessListener {
+                    ref.downloadUrl.addOnSuccessListener { url ->
+                        saveCategoryToFirestore(url.toString())
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Toast.makeText(requireContext(), "Resim yüklenirken bir hata oluştu.", Toast.LENGTH_LONG).show()
+                }
+        }
+    }
+
+    private fun saveCategoryToFirestore(imageUrl: String) {
+        val categoryName = binding.tiCategoryName.text.toString()
+        val isActive = binding.cbCategory.isChecked
+
+        database.collection("Categories")
+            .add(CategoriesModel(categoryName = categoryName, active = isActive, imageUrl = imageUrl))
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Kategori Eklendi", Toast.LENGTH_LONG).show()
+                navController.navigate(R.id.action_addCategoryFragment_to_optionsFragment)
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Kategori eklenemedi.", Toast.LENGTH_LONG).show()
+            }
+    }
 
     override fun onResume() {
         super.onResume()
-        // Get the ActionBar
         (requireActivity() as AppCompatActivity).supportActionBar?.hide()
     }
 
     override fun onStop() {
         super.onStop()
-        // Hide the ActionBar
         (requireActivity() as AppCompatActivity).supportActionBar?.show()
     }
-
-
 }
-
-

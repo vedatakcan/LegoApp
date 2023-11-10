@@ -70,7 +70,9 @@ class OptionsFragment : Fragment(), MenuProvider {
                             CategoriesModel(
                                 categoryId = data.id,
                                 categoryName = data.get("categoryName") as String,
-                                active = data.get("active") as Boolean
+                                active = data.get("active") as Boolean,
+                                imageUrl = data.get("imageUrl") as String
+
                             )
                         )
                     }

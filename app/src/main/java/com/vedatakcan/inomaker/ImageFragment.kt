@@ -20,6 +20,9 @@ class ImageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
 
+        binding.btnHome.setOnClickListener {
+          navController.navigate(R.id.action_imageFragment_to_optionsFragment)
+        }
     }
 
     override fun onCreateView(

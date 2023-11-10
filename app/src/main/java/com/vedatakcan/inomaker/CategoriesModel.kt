@@ -5,6 +5,6 @@ data class CategoriesModel(
 
     val categoryId: String? = null,
     val categoryName: String,
-    // val categoryImageUrl: String,
+    val imageUrl: String,
     val active: Boolean
 )

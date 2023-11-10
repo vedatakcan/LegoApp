@@ -7,19 +7,16 @@ import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.squareup.picasso.Picasso
 import com.vedatakcan.inomaker.databinding.ItemViewBinding
 
 class CategoriesAdapter(
 
 ): RecyclerView.Adapter<CategoriesAdapter.CategoriesViewHolder>() {
 
-
-
     private var categoriesList: MutableList<CategoriesModel> = mutableListOf()
     private lateinit var navController: NavController
-
-
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoriesViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -35,14 +32,20 @@ class CategoriesAdapter(
 
     override fun onBindViewHolder(holder: CategoriesViewHolder, position: Int) {
         holder.bind(categoriesList[position])
-    }
 
+
+    }
 
     inner class CategoriesViewHolder(private val binding: ItemViewBinding):
          RecyclerView.ViewHolder(binding.root){
         fun bind(categoriesModel: CategoriesModel){
             binding.apply {
                 categoriesName.text = categoriesModel.categoryName
+                Picasso.get().load(categoriesModel.imageUrl).into(imageClick)
+
+                Glide.with(itemView.context)
+                    .load(categoriesModel.imageUrl)
+                    .into(binding.imageClick)
 
             }
             itemView.setOnClickListener{
