@@ -97,6 +97,7 @@ class OptionsFragment : Fragment(), MenuProvider {
             }
             R.id.addImage -> {
                 // Öğe 2'ye tıklanınca yapılacak işlem
+                navController.navigate(R.id.action_optionsFragment_to_addImageFragment)
                 return true
             }
         }
@@ -112,7 +113,7 @@ class OptionsFragment : Fragment(), MenuProvider {
         builder.setView(input)
 
         builder.setPositiveButton("Giriş", DialogInterface.OnClickListener { dialog, which ->
-            val enteredPassword = input.text.toString()
+            val enteredPassword = input.text.toString().trim()
             val correctPassword = "1984" // Doğru şifreyi burada tanımlayın
 
             if (enteredPassword == correctPassword) {

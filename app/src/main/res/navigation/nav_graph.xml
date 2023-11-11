@@ -24,6 +24,9 @@
         <action
             android:id="@+id/action_optionsFragment_to_addCategoryFragment"
             app:destination="@id/addCategoryFragment" />
+        <action
+            android:id="@+id/action_optionsFragment_to_addImageFragment"
+            app:destination="@id/addImageFragment" />
     </fragment>
     <fragment
         android:id="@+id/startFragment"
@@ -50,6 +53,15 @@
         tools:layout="@layout/fragment_add_category" >
         <action
             android:id="@+id/action_addCategoryFragment_to_optionsFragment"
+            app:destination="@id/optionsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addImageFragment"
+        android:name="com.vedatakcan.inomaker.AddImageFragment"
+        android:label="fragment_add_image"
+        tools:layout="@layout/fragment_add_image" >
+        <action
+            android:id="@+id/action_addImageFragment_to_optionsFragment"
             app:destination="@id/optionsFragment" />
     </fragment>
 </navigation>
