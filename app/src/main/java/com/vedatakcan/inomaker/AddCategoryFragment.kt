@@ -25,7 +25,7 @@ import java.util.UUID
 
 class AddCategoryFragment : Fragment() {
 
-    var selectedGorsel: Uri? = null
+    var selectedImage: Uri? = null
     var selectedBitmap: Bitmap? = null
 
     private lateinit var storage: FirebaseStorage
@@ -69,8 +69,8 @@ class AddCategoryFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            selectedGorsel = data.data
-            selectedBitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, selectedGorsel)
+            selectedImage = data.data
+            selectedBitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, selectedImage)
             binding.ivAddCategoryImage.setImageBitmap(selectedBitmap)
         }
     }
@@ -93,7 +93,7 @@ class AddCategoryFragment : Fragment() {
     }
 
     private fun uploadImageToFirebaseStorage() {
-        selectedGorsel?.let { uri ->
+        selectedImage?.let { uri ->
             val ref = storage.reference.child("category_images/${UUID.randomUUID()}.jpg")
             ref.putFile(uri)
                 .addOnSuccessListener {
@@ -114,10 +114,7 @@ class AddCategoryFragment : Fragment() {
         database.collection("Categories")
             .add(CategoriesModel(categoryName = categoryName, active = isActive, imageUrl = imageUrl))
             .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Kategori Eklendi", Toast.LENGTH_LONG).show()
-
                 showDialog()
-                navController.navigate(R.id.action_addCategoryFragment_to_optionsFragment)
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Kategori eklenemedi.", Toast.LENGTH_LONG).show()
@@ -126,7 +123,8 @@ class AddCategoryFragment : Fragment() {
 
     private fun showDialog() {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Kategoriye ait resimleri ekle.")
+        builder.setTitle("Kategori eklendi.")
+        builder.setMessage("Kategoriye ait resimleri ekle.")
 
         builder.setPositiveButton("Ekle", DialogInterface.OnClickListener {dialog, which ->
             toUploadImage()
@@ -134,11 +132,15 @@ class AddCategoryFragment : Fragment() {
 
         builder.setNegativeButton("Daha sonra",DialogInterface.OnClickListener { dialog, which ->
             dialog.cancel()
+            navController.navigate(R.id.action_addCategoryFragment_to_optionsFragment)
         })
+
+        builder.show()
     }
 
     private fun toUploadImage() {
        // Resim ekleme sayfasına gidilecek.
+        navController.navigate(R.id.action_addCategoryFragment_to_addImageFragment)
     }
 
     override fun onResume() {

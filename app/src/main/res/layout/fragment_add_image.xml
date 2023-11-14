@@ -8,20 +8,30 @@
     tools:context=".AddImageFragment">
 
    <Spinner
+       android:id="@+id/spinnerClick"
+       android:padding="10dp"
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
        android:layout_marginBottom="14dp" />
+
+    <Button
+        android:id="@+id/chooseImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Resim Seç"/>
 
        <Button
            android:id="@+id/btnAddImage"
            android:layout_width="match_parent"
            android:layout_height="wrap_content"
-           android:text="Resim ekle"/>
+           android:text="Kaydet"/>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/imRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginTop="14dp"
-        android:scrollbars="vertical"/>
+        tools:listitem="@layout/item_image_view"
+        android:scrollbars="horizontal"/>
 </LinearLayout>

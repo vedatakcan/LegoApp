@@ -54,6 +54,9 @@
         <action
             android:id="@+id/action_addCategoryFragment_to_optionsFragment"
             app:destination="@id/optionsFragment" />
+        <action
+            android:id="@+id/action_addCategoryFragment_to_addImageFragment"
+            app:destination="@id/addImageFragment" />
     </fragment>
     <fragment
         android:id="@+id/addImageFragment"
@@ -63,5 +66,8 @@
         <action
             android:id="@+id/action_addImageFragment_to_optionsFragment"
             app:destination="@id/optionsFragment" />
+        <action
+            android:id="@+id/action_addImageFragment_to_addCategoryFragment"
+            app:destination="@id/addCategoryFragment" />
     </fragment>
 </navigation>

@@ -53,6 +53,7 @@ class OptionsFragment : Fragment(), MenuProvider {
             binding.recyclerView.adapter = categoriesAdapter
         }
 
+
         getCategories()
         return binding.root
     }
@@ -145,6 +146,5 @@ class OptionsFragment : Fragment(), MenuProvider {
     private fun navigateToPdfUploadPage() {
         navController.navigate(R.id.action_optionsFragment_to_addCategoryFragment)
     }
-
 
 }
