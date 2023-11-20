@@ -6,6 +6,7 @@ import androidx.constraintlayout.helper.widget.MotionPlaceholder
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.squareup.picasso.Picasso
@@ -41,7 +42,7 @@ class CategoriesAdapter(
         fun bind(categoriesModel: CategoriesModel){
             binding.apply {
                 categoriesName.text = categoriesModel.categoryName
-                Picasso.get().load(categoriesModel.imageUrl).into(imageClick)
+                //Picasso.get().load(categoriesModel.imageUrl).into(imageClick)
 
                 Glide.with(itemView.context)
                     .load(categoriesModel.imageUrl)
@@ -51,7 +52,8 @@ class CategoriesAdapter(
             itemView.setOnClickListener{
                 val categoryId = categoriesModel.categoryId
                 val bundle = bundleOf("categoryId" to categoryId)
-                navController.navigate(R.id.action_optionsFragment_to_imageFragment, bundle)
+                itemView.findNavController().navigate(R.id.action_optionsFragment_to_imageFragment, bundle)
+
             }
         }
     }

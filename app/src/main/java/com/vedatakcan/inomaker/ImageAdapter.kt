@@ -20,7 +20,7 @@ class ImageAdapter(private val imageList: List<Uri>) : RecyclerView.Adapter<Imag
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_view, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_image_view, parent, false)
         return ImageViewHolder(view)
     }
 

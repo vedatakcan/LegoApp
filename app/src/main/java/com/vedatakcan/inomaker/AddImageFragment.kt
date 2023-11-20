@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
 import com.vedatakcan.inomaker.databinding.FragmentAddImageBinding
 import java.util.UUID
@@ -136,20 +137,18 @@ class AddImageFragment : Fragment() {
         selectedCategoryName?.let { categoryName ->
             val categoryStorageRef = storage.reference.child("category_images/$categoryName")
 
+            val imageUrls = mutableListOf<String>() // URL'leri tutacak liste
+
             for ((index, imageUri) in selectedImageList.withIndex()) {
                 val ref = categoryStorageRef.child("${UUID.randomUUID()}_${index}.jpg")
                 ref.putFile(imageUri)
-                    .addOnSuccessListener {
+                    .addOnSuccessListener { taskSnapshot ->
                         ref.downloadUrl.addOnSuccessListener { url ->
-                            // Resim yüklendikçe yapılacak işlemler
-                            // Örneğin, resim URL'ini Firestore'a kaydedebilirsiniz
                             val imageUrl = url.toString()
-
-                            if (!imageUrl.isNullOrEmpty()) {
-                                // Firestore'a kaydetme işlemi (örnek)
-                                saveImageUrlToFirestore(imageUrl)
-                            } else {
-                                Log.e("Firestore", "Image URL is null or empty")
+                            imageUrls.add(imageUrl) // URL'leri listeye ekle
+                            if (imageUrls.size == selectedImageList.size) {
+                                // Eğer tüm resimler yüklendiyse Firestore'a kaydetme işlemi başlat
+                                saveImageUrlsToFirestore(imageUrls)
                             }
                         }
                     }
@@ -158,40 +157,44 @@ class AddImageFragment : Fragment() {
                         Log.e("FirebaseStorage", "Error uploading image", exception)
                     }
             }
-
-            // Resimlerin seçildiği RecyclerView'ı sıfırla
-            selectedImageList.clear()
-            imageAdapter.notifyDataSetChanged()
         }
     }
 
-    private fun saveImageUrlToFirestore(imageUrl: String) {
-        val categoryName = selectedCategoryName ?: return // selectedCategoryName null değilse devam et, değilse fonksiyonu bitir
+    private fun saveImageUrlsToFirestore(imageUrls: List<String>) {
+        selectedCategoryName?.let { categoryName ->
+            val categoryRef = database.collection("Categories")
+                .whereEqualTo("categoryName", categoryName)
 
-        database.collection("Categories")
-            .whereEqualTo("categoryName", categoryName)
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    // Belirli kategoriyi bulduk
-                    val categoryId = document.id
+            categoryRef.get()
+                .addOnSuccessListener { querySnapshot ->
+                    for (document in querySnapshot) {
+                        val categoryId = document.id
 
-                    // Resim URL'sini Firestore'da ilgili kategoriye kaydet
-                    database.collection("Categories").document(categoryId)
-                        .update("imageUrl", imageUrl)
-                        .addOnSuccessListener {
-                            // Resim URL'si başarıyla kaydedildi
+                        // Yeni bir koleksiyon oluştur ve resim URL'lerini buraya ekle
+                        val categoryImagesRef = database.collection("Categories")
+                            .document(categoryId)
+                            .collection("CategoryImages") // Yeni koleksiyon adı
+
+                        // Her bir resim URL'sini yeni koleksiyona ekle
+                        for (imageUrl in imageUrls) {
+                            categoryImagesRef.add(mapOf("imageUrl" to imageUrl))
+                                .addOnSuccessListener {
+                                    // Resim URL'si başarıyla eklendi
+                                }
+                                .addOnFailureListener { exception ->
+                                    // Resim URL'si eklenirken hata oluştu
+                                    Log.e("Firestore", "Error adding image URL", exception)
+                                }
                         }
-                        .addOnFailureListener { exception ->
-                            // Resim URL'si kaydedilirken hata oluştu
-                            Log.e("Firestore", "Error updating image URL", exception)
-                        }
+                    }
                 }
-            }
-            .addOnFailureListener { exception ->
-                // Kategori bulunurken hata oluştu
-                Log.e("Firestore", "Error getting document", exception)
-            }
+                .addOnFailureListener { exception ->
+                    // Kategori bulunurken hata oluştu
+                    Log.e("Firestore", "Error getting document", exception)
+                }
+        }
     }
+
+
 }
 

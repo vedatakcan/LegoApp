@@ -3,6 +3,7 @@ package com.vedatakcan.inomaker
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.view.ContextMenu
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -88,47 +89,47 @@ class OptionsFragment : Fragment(), MenuProvider {
     }
 
 
-
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.addCategory -> {
                 // Öğe 1'e tıklanınca yapılacak işlem
-                showPasswordDialog()
+                showPasswordDialog(R.id.action_optionsFragment_to_addCategoryFragment)
                 return true
             }
             R.id.addImage -> {
                 // Öğe 2'ye tıklanınca yapılacak işlem
-                navController.navigate(R.id.action_optionsFragment_to_addImageFragment)
+                showPasswordDialog(R.id.action_optionsFragment_to_addImageFragment)
                 return true
             }
         }
         return false
     }
 
-    private fun showPasswordDialog() {
+    private fun showPasswordDialog(destination: Int) {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Şifre Girişi")
 
         // Şifre girişi için bir EditText alanı ekleyin
         val input = EditText(requireContext())
+        input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD // Parolanın gizli olmasını sağlar
         builder.setView(input)
 
-        builder.setPositiveButton("Giriş", DialogInterface.OnClickListener { dialog, which ->
+        builder.setPositiveButton("Giriş") { dialog, _ ->
             val enteredPassword = input.text.toString().trim()
             val correctPassword = "1984" // Doğru şifreyi burada tanımlayın
 
             if (enteredPassword == correctPassword) {
-                // Şifre doğru, PDF ekleme sayfasına yönlendirme yapabilirsiniz
-                navigateToPdfUploadPage()
+                // Şifre doğru, istenilen sayfaya yönlendirme yapabilirsiniz
+                navController.navigate(destination)
             } else {
                 // Hatalı şifre girişi hakkında bir uyarı gösterin
                 showErrorDialog()
             }
-        })
+        }
 
-        builder.setNegativeButton("İptal", DialogInterface.OnClickListener { dialog, which ->
+        builder.setNegativeButton("İptal") { dialog, _ ->
             dialog.cancel()
-        })
+        }
 
         builder.show()
     }
@@ -143,8 +144,12 @@ class OptionsFragment : Fragment(), MenuProvider {
         errorBuilder.show()
     }
 
+
     private fun navigateToPdfUploadPage() {
         navController.navigate(R.id.action_optionsFragment_to_addCategoryFragment)
+    }
+    private fun navigateToAddImagePage() {
+        navController.navigate(R.id.action_optionsFragment_to_addImageFragment)
     }
 
 }
