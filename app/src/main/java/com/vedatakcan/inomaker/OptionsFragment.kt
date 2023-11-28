@@ -74,7 +74,6 @@ class OptionsFragment : Fragment(), MenuProvider {
                                 categoryName = data.get("categoryName") as String,
                                 active = data.get("active") as Boolean,
                                 imageUrl = data.get("imageUrl") as String
-
                             )
                         )
                     }
@@ -145,11 +144,5 @@ class OptionsFragment : Fragment(), MenuProvider {
     }
 
 
-    private fun navigateToPdfUploadPage() {
-        navController.navigate(R.id.action_optionsFragment_to_addCategoryFragment)
-    }
-    private fun navigateToAddImagePage() {
-        navController.navigate(R.id.action_optionsFragment_to_addImageFragment)
-    }
 
 }

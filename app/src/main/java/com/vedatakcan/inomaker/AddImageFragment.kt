@@ -1,6 +1,5 @@
 package com.vedatakcan.inomaker
 
-import android.R
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -9,16 +8,20 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
 import com.vedatakcan.inomaker.databinding.FragmentAddImageBinding
 import java.util.UUID
@@ -30,7 +33,6 @@ class AddImageFragment : Fragment() {
     private lateinit var binding: FragmentAddImageBinding
     private lateinit var database: FirebaseFirestore
     private lateinit var navController: NavController
-
 
     private var selectedCategoryName: String? = null
     private var selectedImageList: MutableList<Uri> = mutableListOf()
@@ -50,11 +52,54 @@ class AddImageFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             imageAdapter = ImageAdapter(selectedImageList)
             adapter = imageAdapter
+
+            addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
+                override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                    if (e.action == MotionEvent.ACTION_DOWN) {
+                        val child = rv.findChildViewUnder(e.x, e.y)
+                        child?.let {
+                            val position = rv.getChildAdapterPosition(it)
+                            if (position != RecyclerView.NO_POSITION) {
+                                if (e.action == MotionEvent.ACTION_DOWN && e.pointerCount == 1) {
+                                    // Uzun basılan öğenin konumunu kontrol et
+                                    if (position in selectedImageList.indices) {
+                                        showDeleteConfirmationDialog(position)
+                                        return true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return false
+                }
+
+                override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
+
+                override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
+            })
         }
 
 
         return binding.root
     }
+
+    private fun showDeleteConfirmationDialog(position: Int) {
+        val alertDialogBuilder = AlertDialog.Builder(requireContext())
+        alertDialogBuilder.apply {
+            setMessage("Resmi silmek istiyor musunuz?")
+            setPositiveButton("Sil") { _, _ ->
+                // Kullanıcı silmeyi onayladı, resmi sil
+                selectedImageList.removeAt(position)
+                imageAdapter.notifyItemRemoved(position)
+            }
+            setNegativeButton("Vazgeç") { dialog, _ ->
+                // Kullanıcı vazgeçti, dialogu kapat
+                dialog.dismiss()
+            }
+            create().show()
+        }
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -63,27 +108,22 @@ class AddImageFragment : Fragment() {
         database = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
 
-
-
-        // Kategori seçimi yapmak için spinner'ı doldur
         loadCategories()
-
-        // RecyclerView için adapter'ı tanımla
-        //imageAdapter = ImageAdapter(selectedImageList)
-        //recyclerView.adapter = imageAdapter
 
         binding.chooseImage.setOnClickListener {
             uploadPhotos()
         }
 
-        // Kullanıcı resimleri onayladıktan sonra kaydetmek istiyorsanız
         binding.btnAddImage.setOnClickListener {
             saveImagesToFirebaseStorage()
+        }
+
+        binding.btnHome.setOnClickListener {
+            navController.navigate(R.id.action_addImageFragment_to_optionsFragment)
         }
     }
 
     private fun loadCategories() {
-        // Firebase'den kategorileri al ve spinner'a ekle
         val categoriesRef = database.collection("Categories")
         categoriesRef.get()
             .addOnSuccessListener { result ->
@@ -99,7 +139,6 @@ class AddImageFragment : Fragment() {
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 binding.spinnerClick.adapter = adapter
 
-                // Kategori seçildiğinde güncelle
                 binding.spinnerClick.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         selectedCategoryName = parent?.getItemAtPosition(position).toString()
@@ -126,7 +165,6 @@ class AddImageFragment : Fragment() {
             val selectedImage = data.data
             selectedImage?.let {
                 selectedImageList.add(it)
-                // İlgili UI güncellemeleri yapabilirsiniz
                 binding.imRecyclerView.visibility = View.VISIBLE
                 imageAdapter.notifyDataSetChanged()
             }
@@ -136,27 +174,35 @@ class AddImageFragment : Fragment() {
     private fun saveImagesToFirebaseStorage() {
         selectedCategoryName?.let { categoryName ->
             val categoryStorageRef = storage.reference.child("category_images/$categoryName")
-
             val imageUrls = mutableListOf<String>() // URL'leri tutacak liste
 
-            for ((index, imageUri) in selectedImageList.withIndex()) {
-                val ref = categoryStorageRef.child("${UUID.randomUUID()}_${index}.jpg")
-                ref.putFile(imageUri)
-                    .addOnSuccessListener { taskSnapshot ->
-                        ref.downloadUrl.addOnSuccessListener { url ->
-                            val imageUrl = url.toString()
-                            imageUrls.add(imageUrl) // URL'leri listeye ekle
-                            if (imageUrls.size == selectedImageList.size) {
-                                // Eğer tüm resimler yüklendiyse Firestore'a kaydetme işlemi başlat
-                                saveImageUrlsToFirestore(imageUrls)
+            var currentIndex = 0
+
+            // Fonksiyon her çağrıldığında bir resmi yükle ve Firestore'a kaydet
+            fun uploadNextImage() {
+                if (currentIndex < selectedImageList.size) {
+                    val imageUri = selectedImageList[currentIndex]
+                    val ref = categoryStorageRef.child("${UUID.randomUUID()}_${currentIndex}.jpg")
+                    ref.putFile(imageUri)
+                        .addOnSuccessListener { taskSnapshot ->
+                            ref.downloadUrl.addOnSuccessListener { url ->
+                                val imageUrl = url.toString()
+                                imageUrls.add(imageUrl)
+
+                                currentIndex++
+                                uploadNextImage() // Bir sonraki resmi yükle
                             }
                         }
-                    }
-                    .addOnFailureListener { exception ->
-                        // Hata durumunda yapılacak işlemler
-                        Log.e("FirebaseStorage", "Error uploading image", exception)
-                    }
+                        .addOnFailureListener { exception ->
+                            Log.e("FirebaseStorage", "Error uploading image", exception)
+                        }
+                } else {
+                    // Tüm resimler yüklendiyse Firestore'a kaydetme işlemine geç
+                    saveImageUrlsToFirestore(imageUrls)
+                }
             }
+
+            uploadNextImage() // İlk resmi yükleme işlemini başlat
         }
     }
 
@@ -170,16 +216,20 @@ class AddImageFragment : Fragment() {
                     for (document in querySnapshot) {
                         val categoryId = document.id
 
-                        // Yeni bir koleksiyon oluştur ve resim URL'lerini buraya ekle
                         val categoryImagesRef = database.collection("Categories")
                             .document(categoryId)
-                            .collection("CategoryImages") // Yeni koleksiyon adı
+                            .collection("CategoryImages")
 
-                        // Her bir resim URL'sini yeni koleksiyona ekle
-                        for (imageUrl in imageUrls) {
-                            categoryImagesRef.add(mapOf("imageUrl" to imageUrl))
+                        for ((index, imageUrl) in imageUrls.withIndex()) {
+                            categoryImagesRef.add(mapOf("imageUrl" to imageUrl, "order" to index))
                                 .addOnSuccessListener {
                                     // Resim URL'si başarıyla eklendi
+                                    if(index == imageUrls.size - 1){
+                                        Toast.makeText(requireContext(), "Resimler başarı ile kaydedildi. ", Toast.LENGTH_SHORT).show()
+                                        navController.navigate(R.id.action_addImageFragment_to_optionsFragment)
+                                    }
+
+
                                 }
                                 .addOnFailureListener { exception ->
                                     // Resim URL'si eklenirken hata oluştu
@@ -189,12 +239,8 @@ class AddImageFragment : Fragment() {
                     }
                 }
                 .addOnFailureListener { exception ->
-                    // Kategori bulunurken hata oluştu
                     Log.e("Firestore", "Error getting document", exception)
                 }
         }
     }
-
-
 }
-

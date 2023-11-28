@@ -4,12 +4,13 @@
 
     <item
         android:id="@+id/addCategory"
-        android:title="PDF ekle"
+        android:title="Kategori ekle"
         android:icon="@drawable/add"/>
 
     <item
         android:id="@+id/addImage"
         android:title="Görsel ekle"
+        android:tint="@color/green"
         android:icon="@drawable/add"/>
 
 

@@ -52,6 +52,11 @@ class AddCategoryFragment : Fragment() {
         database = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
 
+
+        binding.btnHome.setOnClickListener {
+            navController.navigate(R.id.action_addCategoryFragment_to_optionsFragment)
+        }
+
         binding.btnAddCategory.setOnClickListener {
             addCategory()
         }

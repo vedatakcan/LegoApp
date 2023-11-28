@@ -28,7 +28,6 @@ class ImageFragment : Fragment() {
 
     private var currentImageIndex = 0
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -70,10 +69,10 @@ class ImageFragment : Fragment() {
 
             // Görünürlüğü ayarla.
             binding.btnBack.visibility = View.VISIBLE
-            binding.btnNext.visibility = if (currentImageIndex == imageList.size -1) View.GONE else View.VISIBLE
+            binding.btnNext.visibility = if (currentImageIndex == imageList.size - 1) View.GONE else View.VISIBLE
         } else {
             // Son resimdeyiz, burada bir bildirim veya uyarma gösterebilirsiniz
-            // Toast.makeText(requireContext(), "Son resim", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Son resim", Toast.LENGTH_SHORT).show()
             binding.btnNext.visibility = View.GONE
         }
     }
@@ -85,15 +84,11 @@ class ImageFragment : Fragment() {
 
             binding.btnNext.visibility = View.VISIBLE
             binding.btnBack.visibility = if (currentImageIndex == 0) View.GONE else View.VISIBLE
-
         } else {
-
-
             binding.btnBack.visibility = View.GONE
 
-
             // İlk resimdeyiz, burada bir bildirim veya uyarma gösterebilirsiniz
-            // Toast.makeText(requireContext(), "İlk resim", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "İlk resim", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -101,6 +96,7 @@ class ImageFragment : Fragment() {
         database.collection("Categories")
             .document(categoryId)
             .collection("CategoryImages")
+            .orderBy("order") // Resimlerin sırasını belirlemek için "order" alanına göre sıralama yapar
             .get()
             .addOnSuccessListener { documentSnapshot ->
                 for (data in documentSnapshot) {
@@ -119,9 +115,7 @@ class ImageFragment : Fragment() {
     private fun loadImage(imageUrl: String) {
         Glide.with(requireContext())
             .load(imageUrl)
-            .centerCrop() // veya fitCenter() .centerCrop()
+            .centerCrop()
             .into(binding.imageView)
     }
-
-
 }
