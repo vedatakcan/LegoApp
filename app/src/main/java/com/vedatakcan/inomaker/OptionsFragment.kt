@@ -115,7 +115,7 @@ class OptionsFragment : Fragment(), MenuProvider {
 
         builder.setPositiveButton("Giriş") { dialog, _ ->
             val enteredPassword = input.text.toString().trim()
-            val correctPassword = "1984" // Doğru şifreyi burada tanımlayın
+            val correctPassword = "1881" // Doğru şifreyi burada tanımlayın
 
             if (enteredPassword == correctPassword) {
                 // Şifre doğru, istenilen sayfaya yönlendirme yapabilirsiniz

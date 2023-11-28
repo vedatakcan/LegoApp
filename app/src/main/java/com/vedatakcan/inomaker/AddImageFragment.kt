@@ -155,21 +155,34 @@ class AddImageFragment : Fragment() {
     }
 
     private fun uploadPhotos() {
-        val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE)
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.type = "image/*"
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        startActivityForResult(intent, GALLERY_REQUEST_CODE)
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            val selectedImage = data.data
-            selectedImage?.let {
-                selectedImageList.add(it)
-                binding.imRecyclerView.visibility = View.VISIBLE
-                imageAdapter.notifyDataSetChanged()
+            if (data.clipData != null) {
+                // Birden fazla resim seçildi
+                val count = data.clipData!!.itemCount
+                for (i in 0 until count) {
+                    val imageUri = data.clipData!!.getItemAt(i).uri
+                    selectedImageList.add(imageUri)
+                }
+            } else if (data.data != null) {
+                // Tek resim seçildi
+                val imageUri = data.data!!
+                selectedImageList.add(imageUri)
             }
+
+            binding.imRecyclerView.visibility = View.VISIBLE
+            imageAdapter.notifyDataSetChanged()
         }
     }
+
 
     private fun saveImagesToFirebaseStorage() {
         selectedCategoryName?.let { categoryName ->

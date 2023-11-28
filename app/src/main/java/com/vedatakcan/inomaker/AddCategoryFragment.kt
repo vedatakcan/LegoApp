@@ -25,8 +25,8 @@ import java.util.UUID
 
 class AddCategoryFragment : Fragment() {
 
-    var selectedImage: Uri? = null
-    var selectedBitmap: Bitmap? = null
+    private var selectedImage: Uri? = null
+    private var selectedBitmap: Bitmap? = null
 
     private lateinit var storage: FirebaseStorage
     private lateinit var binding: FragmentAddCategoryBinding
