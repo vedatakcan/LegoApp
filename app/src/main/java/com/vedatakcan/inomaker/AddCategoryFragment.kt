@@ -137,6 +137,7 @@ class AddCategoryFragment : Fragment() {
 
         builder.setNegativeButton("Daha sonra",DialogInterface.OnClickListener { dialog, which ->
             dialog.cancel()
+
             navController.navigate(R.id.action_addCategoryFragment_to_optionsFragment)
         })
 

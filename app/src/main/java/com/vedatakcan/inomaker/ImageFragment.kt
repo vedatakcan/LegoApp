@@ -1,12 +1,17 @@
 package com.vedatakcan.inomaker
 
+import android.content.Context
 import android.os.Bundle
+import android.util.AttributeSet
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import android.widget.SeekBar
 import android.widget.Toast
+import androidx.appcompat.widget.AppCompatSeekBar
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
@@ -19,6 +24,8 @@ class ImageFragment : Fragment() {
     private lateinit var binding: FragmentImageBinding
     private lateinit var navController: NavController
     private lateinit var database: FirebaseFirestore
+
+
 
     private var imageList: MutableList<String> = mutableListOf()
 
@@ -37,7 +44,11 @@ class ImageFragment : Fragment() {
         navController = Navigation.findNavController(view)
         database = FirebaseFirestore.getInstance()
 
+        val horizontalProgressBar = binding.horizontalProgressBar
+
         binding.btnBack.visibility = View.GONE
+
+
 
         binding.btnHome.setOnClickListener {
             navController.navigate(R.id.action_imageFragment_to_optionsFragment)
@@ -45,17 +56,37 @@ class ImageFragment : Fragment() {
 
         binding.btnBack.setOnClickListener {
             showPreviousImage()
+            updateProgressBar(horizontalProgressBar)
         }
 
         binding.btnNext.setOnClickListener {
             showNextImage()
+            updateProgressBar(horizontalProgressBar)
         }
+
+
+
+
 
         val categoryId = arguments?.getString("categoryId")
 
         if (categoryId != null) {
             loadImagesForCategory(categoryId)
+            disableSeekBarInteraction(horizontalProgressBar)
         }
+    }
+
+    private fun disableSeekBarInteraction(seekBar: SeekBar) {
+        seekBar.isEnabled = false  // Kullanıcının thumb'ı hareket ettirmesini engeller
+        seekBar.isClickable = false // Kullanıcının thumb'ı tıklamasını engeller
+       // seekBar.setOnTouchListener { _, _ -> true } // Kullanıcının thumb'ı sürüklemesini engeller
+    }
+
+
+
+    private fun updateProgressBar(progressBar: ProgressBar) {
+        val progress = ((currentImageIndex + 1).toFloat() /imageList.size.toFloat())*100
+        progressBar.progress = progress.toInt()
     }
 
     private fun showNextImage() {
