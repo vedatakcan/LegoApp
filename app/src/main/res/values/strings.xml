@@ -2,4 +2,14 @@
     <string name="app_name">Lego Essential</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_name_start"> Lego \n Essential</string>
+    <string name="start_button"> Start </string>
+    <string name="category_name">Kategori isim </string>
+    <string name="choose_picture">Resim seç</string>
+    <string name="save_picture"> Kaydet</string>
+    <string name="images">Resimler</string>
+    <string name="hint_category_name">Kategori adı</string>
+    <string name="active">Aktif mi?</string>
+    <string name="add_category">Kategori Ekle</string>
+
 </resources>

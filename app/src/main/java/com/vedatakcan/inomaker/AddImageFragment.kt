@@ -242,7 +242,6 @@ class AddImageFragment : Fragment() {
                                         navController.navigate(R.id.action_addImageFragment_to_optionsFragment)
                                     }
 
-
                                 }
                                 .addOnFailureListener { exception ->
                                     // Resim URL'si eklenirken hata oluştu

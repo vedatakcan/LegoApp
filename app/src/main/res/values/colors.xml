@@ -12,5 +12,6 @@
     <color name="red">#F30000</color>
     <color name="green">#00BD08</color>
     <color name="progressbar_color">#FFEB3B</color>
+    <color name="app_color">#EEC21A</color>
 
 </resources>
