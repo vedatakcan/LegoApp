@@ -100,7 +100,6 @@ class AddImageFragment : Fragment() {
         }
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -168,23 +167,27 @@ class AddImageFragment : Fragment() {
             if (data.clipData != null) {
                 // Birden fazla resim seçildi
                 val count = data.clipData!!.itemCount
+                val startPosition = selectedImageList.size // Yeni eklenen resimlerin başlangıç pozisyonu
                 for (i in 0 until count) {
                     val imageUri = data.clipData!!.getItemAt(i).uri
                     selectedImageList.add(imageUri)
+                    imageAdapter.notifyItemInserted(startPosition + i) // Yeni eklenen her resmi göster
                 }
             } else if (data.data != null) {
                 // Tek resim seçildi
                 val imageUri = data.data!!
                 selectedImageList.add(imageUri)
+                imageAdapter.notifyItemInserted(selectedImageList.size - 1) // Yeni eklenen resmi göster
             }
 
             binding.imRecyclerView.visibility = View.VISIBLE
-            imageAdapter.notifyDataSetChanged()
         }
     }
 
 
     private fun saveImagesToFirebaseStorage() {
+        // Butonun etkinliğini devre dışı bırak
+        binding.btnAddImage.isEnabled = false
         selectedCategoryName?.let { categoryName ->
             val categoryStorageRef = storage.reference.child("category_images/$categoryName")
             val imageUrls = mutableListOf<String>() // URL'leri tutacak liste
@@ -239,6 +242,8 @@ class AddImageFragment : Fragment() {
                                     // Resim URL'si başarıyla eklendi
                                     if(index == imageUrls.size - 1){
                                         Toast.makeText(requireContext(), "Resimler başarı ile kaydedildi. ", Toast.LENGTH_SHORT).show()
+                                        // Firestore işlemleri yapıldıktan sonra butonun etkinliğini tekrar aktif hale getir
+                                        binding.btnAddImage.isEnabled = true
                                         navController.navigate(R.id.action_addImageFragment_to_optionsFragment)
                                     }
 

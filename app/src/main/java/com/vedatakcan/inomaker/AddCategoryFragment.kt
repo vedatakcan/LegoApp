@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -80,30 +81,48 @@ class AddCategoryFragment : Fragment() {
         }
     }
 
-    private fun addCategory() {
-        if (isValid()) {
-            // Depo işlemleri
-            val uuid = UUID.randomUUID()
-            val gorselIsmi = "${uuid}.jpg"
-
-            uploadImageToFirebaseStorage()
-        } else {
-            Toast.makeText(requireContext(), "Lütfen kategori alanını doldurun", Toast.LENGTH_LONG).show()
-        }
-    }
-
     private fun isValid(): Boolean {
         val categoryName = binding.tiCategoryName.text.toString()
         return !categoryName.isNullOrEmpty() && categoryName.isNotBlank()
     }
 
-    private fun uploadImageToFirebaseStorage() {
+    private fun addCategory() {
+        val addButton = binding.btnAddCategory
+        addButton.isEnabled = false // Butonu devre dışı bırak
+
+        Log.d("ButtonStatus", "Button status before validation: ${addButton.isEnabled}")
+
+        if (isValid()) {
+            val categoryName = binding.tiCategoryName.text.toString()
+            val isActive = binding.cbCategory.isChecked
+
+            if (selectedImage == null) {
+                // Eğer resim seçilmediyse uyarı göster
+                Toast.makeText(requireContext(), "Lütfen bir resim seçin", Toast.LENGTH_LONG).show()
+                addButton.isEnabled = true // Butonu etkinleştir
+                Log.d("ButtonStatus", "Button status after image validation: ${addButton.isEnabled}")
+            } else {
+                // Resmin adını oluştur
+                val uuid = UUID.randomUUID()
+                val imageName = "${uuid}.jpg" // Burada gorselIsmi değişkenini kullanıyoruz
+
+                // Resmi depolama alanına yükleme işlemi
+                uploadImageToFirebaseStorage(imageName, categoryName, isActive)
+            }
+        } else {
+            Toast.makeText(requireContext(), "Lütfen kategori alanını doldurun", Toast.LENGTH_LONG).show()
+            addButton.isEnabled = true // Geçerli olmayan durumda butonu tekrar etkinleştir
+            Log.d("ButtonStatus", "Button status after validation: ${addButton.isEnabled}")
+        }
+    }
+
+    private fun uploadImageToFirebaseStorage(imageName: String, categoryName: String, isActive: Boolean) {
         selectedImage?.let { uri ->
-            val ref = storage.reference.child("category_images/${UUID.randomUUID()}.jpg")
+            val ref = storage.reference.child("category_images/$imageName")
             ref.putFile(uri)
                 .addOnSuccessListener {
                     ref.downloadUrl.addOnSuccessListener { url ->
-                        saveCategoryToFirestore(url.toString())
+                        saveCategoryToFirestore(categoryName, isActive, url.toString())
                     }
                 }
                 .addOnFailureListener { exception ->
@@ -112,10 +131,7 @@ class AddCategoryFragment : Fragment() {
         }
     }
 
-    private fun saveCategoryToFirestore(imageUrl: String) {
-        val categoryName = binding.tiCategoryName.text.toString()
-        val isActive = binding.cbCategory.isChecked
-
+    private fun saveCategoryToFirestore(categoryName: String, isActive: Boolean, imageUrl: String) {
         database.collection("Categories")
             .add(CategoriesModel(categoryName = categoryName, active = isActive, imageUrl = imageUrl))
             .addOnSuccessListener {
@@ -125,6 +141,7 @@ class AddCategoryFragment : Fragment() {
                 Toast.makeText(requireContext(), "Kategori eklenemedi.", Toast.LENGTH_LONG).show()
             }
     }
+
 
     private fun showDialog() {
         val builder = AlertDialog.Builder(requireContext())
