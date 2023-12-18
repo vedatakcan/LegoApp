@@ -8,5 +8,5 @@ data class CategoriesModel(
     val categoryName: String,
     val imageUrl: String,
     val active: Boolean,
-   // val timestamp: Timestamp = Timestamp.now() // Zaman damgası ekleniyor
+    val timestamp: Timestamp = Timestamp.now() // Zaman damgası ekleniyor
 )

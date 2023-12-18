@@ -1,6 +1,7 @@
 package com.vedatakcan.inomaker
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import androidx.fragment.app.Fragment
@@ -13,6 +14,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuProvider
 import androidx.navigation.NavController
@@ -36,6 +38,11 @@ class OptionsFragment : Fragment(), MenuProvider {
         super.onViewCreated(view, savedInstanceState)
         activity?.addMenuProvider(this, viewLifecycleOwner)
         navController = Navigation.findNavController(view)
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner){
+            navController.navigate(R.id.action_optionsFragment_to_startFragment)
+        }
+
     }
 
     override fun onCreateView(
@@ -79,6 +86,7 @@ class OptionsFragment : Fragment(), MenuProvider {
         getCategories()
         return binding.root
     }
+
 
 
 
@@ -301,4 +309,5 @@ class OptionsFragment : Fragment(), MenuProvider {
         }
         errorBuilder.show()
     }
+
 }
