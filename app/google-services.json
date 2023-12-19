@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "580479102318",
-    "project_id": "inomaker-43a40",
-    "storage_bucket": "inomaker-43a40.appspot.com"
+    "project_number": "719150524332",
+    "project_id": "lego-68dd6",
+    "storage_bucket": "lego-68dd6.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:580479102318:android:833521102450605592e57f",
+        "mobilesdk_app_id": "1:719150524332:android:ea43f1cecf27d00b0abc09",
         "android_client_info": {
           "package_name": "com.vedatakcan.inomaker"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAoME6IKhLOydYkj93xkIxjs0_Fqw_wXaE"
+          "current_key": "AIzaSyAPRymlvfzR2TUooSUO1lRyQCamRj5Z_rc"
         }
       ],
       "services": {
