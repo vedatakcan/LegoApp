@@ -49,7 +49,7 @@ class StartFragment : Fragment() {
         binding = FragmentStartBinding.inflate(inflater, container, false)
 
         binding.btnStart.setOnClickListener {
-            navController.navigate(R.id.action_startFragment_to_optionsFragment)
+            navController.navigate(R.id.action_startFragment_to_sectionsFragment)
         }
 
 

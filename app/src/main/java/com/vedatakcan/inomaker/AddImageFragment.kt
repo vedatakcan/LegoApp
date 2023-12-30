@@ -123,33 +123,47 @@ class AddImageFragment : Fragment() {
     }
 
     private fun loadCategories() {
-        val categoriesRef = database.collection("Categories")
-        categoriesRef.get()
+        val sectionsRef = database.collection("Sections")
+        sectionsRef
+            .get()
             .addOnSuccessListener { result ->
                 val categoryList = mutableListOf<String>()
                 for (document in result) {
-                    val categoryName = document.getString("categoryName")
-                    categoryName?.let {
-                        categoryList.add(it)
-                    }
-                }
+                    // Sections koleksiyonundan belge alındıktan sonra bu belgenin altındaki Categories koleksiyonundan kategorileri çekin
+                    val sectionId = document.id
+                    val categoriesRef = database.collection("Sections").document(sectionId).collection("Categories")
+                    categoriesRef.get()
+                        .addOnSuccessListener { categories ->
+                            for (categoryDoc in categories) {
+                                val categoryName = categoryDoc.getString("categoryName")
+                                categoryName?.let {
+                                    categoryList.add(it)
+                                }
+                            }
 
-                val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categoryList)
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                binding.spinnerClick.adapter = adapter
+                            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categoryList)
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                            binding.spinnerClick.adapter = adapter
 
-                binding.spinnerClick.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        selectedCategoryName = parent?.getItemAtPosition(position).toString()
-                    }
+                            binding.spinnerClick.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                                    selectedCategoryName = parent?.getItemAtPosition(position).toString()
+                                }
 
-                    override fun onNothingSelected(parent: AdapterView<*>?) {
-                        // Hiçbir şey seçilmediğinde yapılacak işlemler
-                    }
+                                override fun onNothingSelected(parent: AdapterView<*>?) {
+                                    // Hiçbir şey seçilmediğinde yapılacak işlemler
+                                }
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Toast.makeText(requireContext(), "Kategoriler alınamadı.", Toast.LENGTH_LONG).show()
+                            Log.e("Firestore", "Error getting categories", exception)
+                        }
                 }
             }
             .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Kategoriler alınamadı.", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "Bölümler alınamadı.", Toast.LENGTH_LONG).show()
+                Log.e("Firestore", "Error getting sections", exception)
             }
     }
 
@@ -188,6 +202,7 @@ class AddImageFragment : Fragment() {
     private fun saveImagesToFirebaseStorage() {
         // Butonun etkinliğini devre dışı bırak
         binding.btnAddImage.isEnabled = false
+        binding.chooseImage.isEnabled = false
         selectedCategoryName?.let { categoryName ->
             val categoryStorageRef = storage.reference.child("category_images/$categoryName")
             val imageUrls = mutableListOf<String>() // URL'leri tutacak liste
@@ -224,35 +239,57 @@ class AddImageFragment : Fragment() {
 
     private fun saveImageUrlsToFirestore(imageUrls: List<String>) {
         selectedCategoryName?.let { categoryName ->
-            val categoryRef = database.collection("Categories")
-                .whereEqualTo("categoryName", categoryName)
+            val sectionsRef = database.collection("Sections")
 
-            categoryRef.get()
+            sectionsRef.get()
                 .addOnSuccessListener { querySnapshot ->
                     for (document in querySnapshot) {
-                        val categoryId = document.id
+                       // val sectionId = document.id
+                        val categoriesRef = document.reference.collection("Categories")
+                        val categoryQuery = categoriesRef.whereEqualTo("categoryName", categoryName)
 
-                        val categoryImagesRef = database.collection("Categories")
-                            .document(categoryId)
-                            .collection("CategoryImages")
+                        categoryQuery.get()
+                            .addOnSuccessListener { categorySnapshot ->
+                                for (categoryDoc in categorySnapshot) {
+                                    val categoryImagesRef = categoryDoc.reference.collection("CategoryImages")
 
-                        for ((index, imageUrl) in imageUrls.withIndex()) {
-                            categoryImagesRef.add(mapOf("imageUrl" to imageUrl, "order" to index))
-                                .addOnSuccessListener {
-                                    // Resim URL'si başarıyla eklendi
-                                    if(index == imageUrls.size - 1){
-                                        Toast.makeText(requireContext(), "Resimler başarı ile kaydedildi. ", Toast.LENGTH_SHORT).show()
-                                        // Firestore işlemleri yapıldıktan sonra butonun etkinliğini tekrar aktif hale getir
-                                        binding.btnAddImage.isEnabled = true
-                                        navController.navigate(R.id.action_addImageFragment_to_optionsFragment)
-                                    }
+                                    // Yalnızca bir kez oluşturulmalı, bu yüzden boşsa oluşturuyoruz
+                                    categoryImagesRef.get()
+                                        .addOnSuccessListener { existingImagesSnapshot ->
+                                            if (existingImagesSnapshot.isEmpty) {
+                                                for ((index, imageUrl) in imageUrls.withIndex()) {
+                                                    val imageData = hashMapOf(
+                                                        "imageUrl" to imageUrl,
+                                                        "order" to index
+                                                    )
 
+                                                    categoryImagesRef.add(imageData)
+                                                        .addOnSuccessListener {
+                                                            if (index == imageUrls.size - 1) {
+                                                                // Tüm resimler eklendiğinde
+                                                                Toast.makeText(requireContext(), "Resimler başarı ile kaydedildi.", Toast.LENGTH_SHORT).show()
+                                                                binding.btnAddImage.isEnabled = true
+                                                                binding.chooseImage.isEnabled = true
+                                                                navController.navigate(R.id.action_addImageFragment_to_sectionsFragment)
+                                                            }
+                                                        }
+                                                        .addOnFailureListener { exception ->
+                                                            Log.e("Firestore", "Error adding image URL", exception)
+                                                        }
+                                                }
+                                            } else {
+                                                // Koleksiyon zaten varsa işlem yapmayı atla
+                                                Toast.makeText(requireContext(), "Kategoriye ait resimler zaten kayıtlı.", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                        .addOnFailureListener { exception ->
+                                            Log.e("Firestore", "Error checking existing images", exception)
+                                        }
                                 }
-                                .addOnFailureListener { exception ->
-                                    // Resim URL'si eklenirken hata oluştu
-                                    Log.e("Firestore", "Error adding image URL", exception)
-                                }
-                        }
+                            }
+                            .addOnFailureListener { exception ->
+                                Log.e("Firestore", "Error getting category document", exception)
+                            }
                     }
                 }
                 .addOnFailureListener { exception ->
@@ -260,4 +297,7 @@ class AddImageFragment : Fragment() {
                 }
         }
     }
+
+
 }
+

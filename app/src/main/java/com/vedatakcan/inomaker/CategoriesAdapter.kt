@@ -13,6 +13,7 @@ import com.vedatakcan.inomaker.databinding.ItemViewBinding
 class CategoriesAdapter : RecyclerView.Adapter<CategoriesAdapter.CategoriesViewHolder>() {
 
     private var categoriesList: MutableList<CategoriesModel> = mutableListOf()
+
     private lateinit var navController: NavController
     private var onCategoryLongClickListener: ((CategoriesModel) -> Unit)? = null
 
@@ -43,9 +44,15 @@ class CategoriesAdapter : RecyclerView.Adapter<CategoriesAdapter.CategoriesViewH
                     .into(binding.imageClick)
 
                 itemView.setOnClickListener {
+
                     val categoryId = categoriesModel.categoryId
-                    val bundle = bundleOf("categoryId" to categoryId)
+                    val sectionId = categoriesModel.sectionId
+                    val bundle = bundleOf(
+                        "categoryId" to categoryId,
+                        "sectionId" to sectionId
+                    )
                     itemView.findNavController().navigate(R.id.action_optionsFragment_to_imageFragment, bundle)
+
                 }
 
                 itemView.setOnLongClickListener {

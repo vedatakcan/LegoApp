@@ -5,11 +5,6 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/startFragment">
 
-    <activity
-        android:id="@+id/mainActivity"
-        android:name="com.vedatakcan.inomaker.MainActivity"
-        android:label="activity_main"
-        tools:layout="@layout/activity_main" />
     <fragment
         android:id="@+id/optionsFragment"
         android:name="com.vedatakcan.inomaker.OptionsFragment"
@@ -27,6 +22,12 @@
         <action
             android:id="@+id/action_optionsFragment_to_addImageFragment"
             app:destination="@id/addImageFragment" />
+        <action
+            android:id="@+id/action_optionsFragment_to_addSectionFragment"
+            app:destination="@id/addSectionFragment" />
+        <action
+            android:id="@+id/action_optionsFragment_to_sectionsFragment"
+            app:destination="@id/sectionsFragment" />
     </fragment>
     <fragment
         android:id="@+id/startFragment"
@@ -36,6 +37,9 @@
         <action
             android:id="@+id/action_startFragment_to_optionsFragment"
             app:destination="@id/optionsFragment" />
+        <action
+            android:id="@+id/action_startFragment_to_sectionsFragment"
+            app:destination="@id/sectionsFragment" />
     </fragment>
     <fragment
         android:id="@+id/imageFragment"
@@ -45,6 +49,9 @@
         <action
             android:id="@+id/action_imageFragment_to_optionsFragment"
             app:destination="@id/optionsFragment" />
+        <action
+            android:id="@+id/action_imageFragment_to_sectionsFragment"
+            app:destination="@id/sectionsFragment" />
     </fragment>
     <fragment
         android:id="@+id/addCategoryFragment"
@@ -57,6 +64,9 @@
         <action
             android:id="@+id/action_addCategoryFragment_to_addImageFragment"
             app:destination="@id/addImageFragment" />
+        <action
+            android:id="@+id/action_addCategoryFragment_to_sectionsFragment"
+            app:destination="@id/sectionsFragment" />
     </fragment>
     <fragment
         android:id="@+id/addImageFragment"
@@ -69,5 +79,38 @@
         <action
             android:id="@+id/action_addImageFragment_to_addCategoryFragment"
             app:destination="@id/addCategoryFragment" />
+        <action
+            android:id="@+id/action_addImageFragment_to_sectionsFragment"
+            app:destination="@id/sectionsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addSectionFragment"
+        android:name="com.vedatakcan.inomaker.AddSectionFragment"
+        android:label="AddSectionFragment" >
+        <action
+            android:id="@+id/action_addSectionFragment_to_optionsFragment"
+            app:destination="@id/optionsFragment" />
+        <action
+            android:id="@+id/action_addSectionFragment_to_addCategoryFragment"
+            app:destination="@id/addCategoryFragment" />
+        <action
+            android:id="@+id/action_addSectionFragment_to_sectionsFragment"
+            app:destination="@id/sectionsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/sectionsFragment"
+        android:name="com.vedatakcan.inomaker.SectionsFragment"
+        android:label="fragment_sections"
+        tools:layout="@layout/fragment_sections" >
+        <action
+            android:id="@+id/action_sectionsFragment_to_optionsFragment"
+            app:destination="@id/optionsFragment" />
+        <action
+            android:id="@+id/action_sectionsFragment_to_startFragment"
+            app:destination="@id/startFragment" />
+
+        <action
+            android:id="@+id/action_sectionsFragment_to_addSectionFragment"
+            app:destination="@id/addSectionFragment" />
     </fragment>
 </navigation>
