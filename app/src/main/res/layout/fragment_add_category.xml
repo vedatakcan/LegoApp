@@ -20,18 +20,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Spinner
-        android:id="@+id/spinnerSections"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:padding="10dp"
-        android:layout_marginTop="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnHome"
-        />
-
-
 
     <ImageView
         android:id="@+id/ivAddCategoryImage"
@@ -39,21 +27,20 @@
         android:layout_height="120dp"
         android:gravity="center"
         android:src="@drawable/add_image"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerSections"
+        app:layout_constraintBottom_toTopOf="@+id/tvCategoryName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-
+        app:layout_constraintTop_toTopOf="parent"
         />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tvCategoryName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="120dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivAddCategoryImage">
+        app:layout_constraintTop_toTopOf="parent">
 
 
 
@@ -84,7 +71,6 @@
         android:layout_width="400dp"
         android:layout_height="wrap_content"
         android:text="@string/add_category"
-        android:layout_marginBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

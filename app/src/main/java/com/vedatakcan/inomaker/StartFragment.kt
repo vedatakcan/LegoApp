@@ -32,16 +32,11 @@ class StartFragment : Fragment() {
         (requireActivity() as AppCompatActivity).supportActionBar?.hide()
     }
 
-
     override fun onStop() {
         super.onStop()
         // Hide the ActionBar
         (requireActivity() as AppCompatActivity).supportActionBar?.show()
     }
-
-
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -49,21 +44,10 @@ class StartFragment : Fragment() {
         binding = FragmentStartBinding.inflate(inflater, container, false)
 
         binding.btnStart.setOnClickListener {
-            navController.navigate(R.id.action_startFragment_to_sectionsFragment)
+            navController.navigate(R.id.action_startFragment_to_optionsFragment)
         }
 
 
         return binding.root
     }
-/*
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-       menuInflater.inflate(R.menu.menu_options, menu)
-    }
-
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        return false
-    }
-
- */
-
 }

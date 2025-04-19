@@ -1,4 +1,4 @@
-package com.vedatakcan.inomaker
+package com.vedatakcan.inomaker.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,12 +8,13 @@ import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.vedatakcan.inomaker.R
 import com.vedatakcan.inomaker.databinding.ItemViewBinding
+import com.vedatakcan.inomaker.model.CategoriesModel
 
 class CategoriesAdapter : RecyclerView.Adapter<CategoriesAdapter.CategoriesViewHolder>() {
 
     private var categoriesList: MutableList<CategoriesModel> = mutableListOf()
-
     private lateinit var navController: NavController
     private var onCategoryLongClickListener: ((CategoriesModel) -> Unit)? = null
 
@@ -44,15 +45,9 @@ class CategoriesAdapter : RecyclerView.Adapter<CategoriesAdapter.CategoriesViewH
                     .into(binding.imageClick)
 
                 itemView.setOnClickListener {
-
                     val categoryId = categoriesModel.categoryId
-                    val sectionId = categoriesModel.sectionId
-                    val bundle = bundleOf(
-                        "categoryId" to categoryId,
-                        "sectionId" to sectionId
-                    )
+                    val bundle = bundleOf("categoryId" to categoryId)
                     itemView.findNavController().navigate(R.id.action_optionsFragment_to_imageFragment, bundle)
-
                 }
 
                 itemView.setOnLongClickListener {

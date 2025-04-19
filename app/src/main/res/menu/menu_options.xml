@@ -5,18 +5,11 @@
     <item
         android:id="@+id/addCategory"
         android:title="Kategori ekle"
-        android:tint="@color/green"
         android:icon="@drawable/add"/>
 
     <item
         android:id="@+id/addImage"
         android:title="Görsel ekle"
-        android:tint="@color/green"
-        android:icon="@drawable/add"/>
-
-    <item
-        android:id="@+id/addSection"
-        android:title="Bölüm ekle"
         android:tint="@color/green"
         android:icon="@drawable/add"/>
 

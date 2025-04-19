@@ -1,13 +1,11 @@
-package com.vedatakcan.inomaker
+package com.vedatakcan.inomaker.model
 
 import com.google.firebase.Timestamp
 
 data class CategoriesModel(
-
     val categoryId: String? = null,
     val categoryName: String,
     val imageUrl: String,
     val active: Boolean,
-    val sectionId: String, // Yeni eklenen parametre
     val timestamp: Timestamp = Timestamp.now() // Zaman damgası ekleniyor
 )
