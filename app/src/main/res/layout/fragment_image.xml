@@ -8,6 +8,18 @@
     android:padding="12dp"
     tools:context=".ImageFragment">
 
+    <ProgressBar
+        android:id="@+id/imageLoadingProgress"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        style="?android:attr/progressBarStyleLarge"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
     <ImageView
         android:id="@+id/btnHome"
         android:layout_width="wrap_content"
@@ -70,6 +82,5 @@
         android:src="@drawable/baseline_arrow_next_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,37 +3,31 @@ package com.vedatakcan.inomaker
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.vedatakcan.inomaker.databinding.FragmentAddCategoryBinding
-import com.vedatakcan.inomaker.model.CategoriesModel
-import java.util.UUID
+import com.vedatakcan.inomaker.repositories.CategoriesRepository
 
 
 class AddCategoryFragment : Fragment() {
 
     private var selectedImage: Uri? = null
-    private var selectedBitmap: Bitmap? = null
-
-    private lateinit var storage: FirebaseStorage
     private lateinit var binding: FragmentAddCategoryBinding
-    private lateinit var database: FirebaseFirestore
     private lateinit var navController: NavController
+    private lateinit var viewModel: AddCategoryViewModel
 
     companion object {
         private const val GALLERY_REQUEST_CODE = 1
@@ -50,10 +44,10 @@ class AddCategoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        navController = Navigation.findNavController(view)
-        database = FirebaseFirestore.getInstance()
-        storage = FirebaseStorage.getInstance()
+        navController = findNavController()
 
+        val factory = GeneralViewModelFactory(CategoriesRepository(FirebaseFirestore.getInstance(), FirebaseStorage.getInstance()))
+        viewModel = ViewModelProvider(this, factory)[AddCategoryViewModel::class.java]
 
         binding.btnHome.setOnClickListener {
             navController.navigate(R.id.action_addCategoryFragment_to_optionsFragment)
@@ -66,6 +60,22 @@ class AddCategoryFragment : Fragment() {
         binding.ivAddCategoryImage.setOnClickListener {
             uploadPhotos()
         }
+
+        // LiveData gözlemi
+        viewModel.categoryAdded.observe(viewLifecycleOwner) { success ->
+            if (success) {
+                showDialog()
+            } else {
+                Toast.makeText(requireContext(), "Kategori eklenemedi.", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        viewModel.isImageValid.observe(viewLifecycleOwner) { isValid ->
+            if (!isValid) {
+                Toast.makeText(requireContext(), "Lütfen bir resim seçin.", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
     }
 
     private fun uploadPhotos() {
@@ -77,92 +87,43 @@ class AddCategoryFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
             selectedImage = data.data
-            selectedBitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, selectedImage)
-            binding.ivAddCategoryImage.setImageBitmap(selectedBitmap)
+            binding.ivAddCategoryImage.setImageURI(selectedImage)
+            viewModel.validateImage(selectedImage)
         }
-    }
-
-    private fun isValid(): Boolean {
-        val categoryName = binding.tiCategoryName.text.toString()
-        return !categoryName.isNullOrEmpty() && categoryName.isNotBlank()
     }
 
     private fun addCategory() {
-        val addButton = binding.btnAddCategory
-        addButton.isEnabled = false // Butonu devre dışı bırak
+        val categoryName = binding.tiCategoryName.text.toString()
+        viewModel.validateCategoryName(categoryName)
 
-        Log.d("ButtonStatus", "Button status before validation: ${addButton.isEnabled}")
-
-        if (isValid()) {
-            val categoryName = binding.tiCategoryName.text.toString()
+        if (viewModel.isCategoryValid.value == true) {
             val isActive = binding.cbCategory.isChecked
-
-            if (selectedImage == null) {
-                // Eğer resim seçilmediyse uyarı göster
-                Toast.makeText(requireContext(), "Lütfen bir resim seçin", Toast.LENGTH_LONG).show()
-                addButton.isEnabled = true // Butonu etkinleştir
-                Log.d("ButtonStatus", "Button status after image validation: ${addButton.isEnabled}")
-            } else {
-                // Resmin adını oluştur
-                val uuid = UUID.randomUUID()
-                val imageName = "${uuid}.jpg" // Burada gorselIsmi değişkenini kullanıyoruz
-
-                // Resmi depolama alanına yükleme işlemi
-                uploadImageToFirebaseStorage(imageName, categoryName, isActive)
-            }
+            viewModel.addCategory(categoryName, isActive, selectedImage)
+            binding.btnAddCategory.isEnabled = false // kategori başarıyla eklendi, buton pasif
         } else {
             Toast.makeText(requireContext(), "Lütfen kategori alanını doldurun", Toast.LENGTH_LONG).show()
-            addButton.isEnabled = true // Geçerli olmayan durumda butonu tekrar etkinleştir
-            Log.d("ButtonStatus", "Button status after validation: ${addButton.isEnabled}")
         }
     }
 
-    private fun uploadImageToFirebaseStorage(imageName: String, categoryName: String, isActive: Boolean) {
-        selectedImage?.let { uri ->
-            val ref = storage.reference.child("category_images/$imageName")
-            ref.putFile(uri)
-                .addOnSuccessListener {
-                    ref.downloadUrl.addOnSuccessListener { url ->
-                        saveCategoryToFirestore(categoryName, isActive, url.toString())
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    Toast.makeText(requireContext(), "Resim yüklenirken bir hata oluştu.", Toast.LENGTH_LONG).show()
-                }
-        }
-    }
-
-    private fun saveCategoryToFirestore(categoryName: String, isActive: Boolean, imageUrl: String) {
-        database.collection("Categories")
-            .add(CategoriesModel(categoryName = categoryName, active = isActive, imageUrl = imageUrl))
-            .addOnSuccessListener {
-                showDialog()
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Kategori eklenemedi.", Toast.LENGTH_LONG).show()
-            }
-    }
 
     private fun showDialog() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Kategori eklendi.")
         builder.setMessage("Kategoriye ait resimleri ekle.")
 
-        builder.setPositiveButton("Ekle", DialogInterface.OnClickListener {dialog, which ->
+        builder.setPositiveButton("Ekle") { _, _ ->
             toUploadImage()
-        })
+        }
 
-        builder.setNegativeButton("Daha sonra",DialogInterface.OnClickListener { dialog, which ->
+        builder.setNegativeButton("Daha sonra") { dialog, _ ->
             dialog.cancel()
-
             navController.navigate(R.id.action_addCategoryFragment_to_optionsFragment)
-        })
+        }
 
         builder.show()
     }
 
     private fun toUploadImage() {
-       // Resim ekleme sayfasına gidilecek.
         navController.navigate(R.id.action_addCategoryFragment_to_addImageFragment)
     }
 

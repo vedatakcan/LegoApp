@@ -51,7 +51,7 @@ class OptionsFragment : Fragment(), MenuProvider {
         val firestore = FirebaseFirestore.getInstance()
         val storage = FirebaseStorage.getInstance()
         val repository = CategoriesRepository(firestore, storage)
-        val factory = OptionsViewModelFactory(repository)
+        val factory = GeneralViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[OptionsViewModel::class.java]
 
         // Set up menu and navigation
