@@ -1,4 +1,4 @@
-package com.vedatakcan.inomaker
+package com.vedatakcan.inomaker.view
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.vedatakcan.inomaker.R
 import com.vedatakcan.inomaker.databinding.FragmentStartBinding
 
 

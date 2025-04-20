@@ -1,4 +1,4 @@
-package com.vedatakcan.inomaker
+package com.vedatakcan.inomaker.view
 
 
 import android.app.Activity
@@ -18,8 +18,11 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.vedatakcan.inomaker.R
 import com.vedatakcan.inomaker.databinding.FragmentAddCategoryBinding
 import com.vedatakcan.inomaker.repositories.CategoriesRepository
+import com.vedatakcan.inomaker.viewmodel.AddCategoryViewModel
+import com.vedatakcan.inomaker.viewmodel.GeneralViewModelFactory
 
 
 class AddCategoryFragment : Fragment() {

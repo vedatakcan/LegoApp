@@ -1,4 +1,4 @@
-package com.vedatakcan.inomaker
+package com.vedatakcan.inomaker.repositories
 
 import android.util.Log
 import androidx.lifecycle.LiveData

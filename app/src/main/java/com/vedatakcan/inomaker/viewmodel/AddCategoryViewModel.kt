@@ -1,11 +1,9 @@
-package com.vedatakcan.inomaker
+package com.vedatakcan.inomaker.viewmodel
 
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.vedatakcan.inomaker.repositories.CategoriesRepository
 import java.util.UUID
 

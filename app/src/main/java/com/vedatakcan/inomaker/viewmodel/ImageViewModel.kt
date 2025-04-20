@@ -1,8 +1,9 @@
-package com.vedatakcan.inomaker
+package com.vedatakcan.inomaker.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.vedatakcan.inomaker.repositories.ImageRepository
 
 class ImageViewModel(private val repository: ImageRepository) : ViewModel() {
 
@@ -10,8 +11,11 @@ class ImageViewModel(private val repository: ImageRepository) : ViewModel() {
     val images: LiveData<List<String>> = _images
 
     fun fetchImages(categoryId: String) {
-        repository.getImagesForCategory(categoryId).observeForever {
-            _images.value = it
+        repository.getImagesForCategory(categoryId).observeForever { imageList ->
+            // Aynı liste tekrar geliyorsa set etme
+            if (_images.value != imageList) {
+                _images.value = imageList
+            }
         }
     }
 }

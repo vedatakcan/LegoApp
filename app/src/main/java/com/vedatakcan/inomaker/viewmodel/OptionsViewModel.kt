@@ -1,4 +1,4 @@
-package com.vedatakcan.inomaker
+package com.vedatakcan.inomaker.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

@@ -1,4 +1,4 @@
-package com.vedatakcan.inomaker
+package com.vedatakcan.inomaker.view
 
 import android.content.Context
 import android.os.Bundle
@@ -16,17 +16,19 @@ import androidx.appcompat.widget.SearchView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuProvider
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.vedatakcan.inomaker.R
 import com.vedatakcan.inomaker.databinding.FragmentOptionsBinding
 import com.vedatakcan.inomaker.model.CategoriesModel
 import com.vedatakcan.inomaker.adapter.CategoriesAdapter
 import com.vedatakcan.inomaker.repositories.CategoriesRepository
+import com.vedatakcan.inomaker.viewmodel.GeneralViewModelFactory
+import com.vedatakcan.inomaker.viewmodel.OptionsViewModel
 
 
 class OptionsFragment : Fragment(), MenuProvider {
@@ -108,7 +110,7 @@ class OptionsFragment : Fragment(), MenuProvider {
 
     private fun showDeleteConfirmationDialog(category: CategoriesModel) {
         AlertDialog.Builder(requireContext())
-            .setMessage("Kategoriyi silmek istediğinizden emin misiniz?")
+            .setMessage("Sunumu silmek istediğinizden emin misiniz?")
             .setPositiveButton("Sil") { _, _ -> showPasswordDialog(category) }
             .setNegativeButton("İptal", null)
             .show()
@@ -121,8 +123,8 @@ class OptionsFragment : Fragment(), MenuProvider {
         AlertDialog.Builder(requireContext())
             .setTitle("Şifre Girişi")
             .setView(input)
-            .setPositiveButton("Giriş") { _, _ ->
-                if (input.text.toString().trim() == "1884") {
+            .setPositiveButton("Tamam") { _, _ ->
+                if (input.text.toString().trim() == "1984") {
                     viewModel.deleteCategory(category) { success ->
                         if (success) viewModel.fetchCategories()
                     }
@@ -165,7 +167,7 @@ class OptionsFragment : Fragment(), MenuProvider {
             .setTitle("Parola")
             .setView(input)
             .setPositiveButton("Tamam") { _, _ ->
-                if (input.text.toString().trim() == "1884") {
+                if (input.text.toString().trim() == "1984") {
                     navController.navigate(destination)
                 } else {
                     showErrorDialog()

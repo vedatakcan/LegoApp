@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.vedatakcan.inomaker.R
 
-class ImageAdapter(private val imageList: List<Uri>) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
+class ImageAdapter(private var imageList: MutableList<Uri>) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
     class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val imageView: ImageView = itemView.findViewById(R.id.imageClick)
@@ -25,12 +25,20 @@ class ImageAdapter(private val imageList: List<Uri>) : RecyclerView.Adapter<Imag
         return ImageViewHolder(view)
     }
 
-    override fun getItemCount(): Int {
-        return imageList.size
-    }
+    override fun getItemCount(): Int = imageList.size
 
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
-        val imageUri = imageList[position]
-        holder.bind(imageUri)
+        holder.bind(imageList[position])
+    }
+
+    fun updateList(newList: List<Uri>) {
+        imageList = newList.toMutableList()
+        notifyDataSetChanged()
+    }
+
+    fun removeItem(position: Int) {
+        imageList.removeAt(position)
+        notifyItemRemoved(position)
     }
 }
+

@@ -12,7 +12,7 @@
         tools:layout="@layout/activity_main" />
     <fragment
         android:id="@+id/optionsFragment"
-        android:name="com.vedatakcan.inomaker.OptionsFragment"
+        android:name="com.vedatakcan.inomaker.view.OptionsFragment"
         android:label="fragment_options"
         tools:layout="@layout/fragment_options" >
         <action
@@ -30,7 +30,7 @@
     </fragment>
     <fragment
         android:id="@+id/startFragment"
-        android:name="com.vedatakcan.inomaker.StartFragment"
+        android:name="com.vedatakcan.inomaker.view.StartFragment"
         android:label="fragment_start"
         tools:layout="@layout/fragment_start" >
         <action
@@ -39,7 +39,7 @@
     </fragment>
     <fragment
         android:id="@+id/imageFragment"
-        android:name="com.vedatakcan.inomaker.ImageFragment"
+        android:name="com.vedatakcan.inomaker.view.ImageFragment"
         android:label="fragment_image"
         tools:layout="@layout/fragment_image" >
         <action
@@ -48,7 +48,7 @@
     </fragment>
     <fragment
         android:id="@+id/addCategoryFragment"
-        android:name="com.vedatakcan.inomaker.AddCategoryFragment"
+        android:name="com.vedatakcan.inomaker.view.AddCategoryFragment"
         android:label="fragment_add_category"
         tools:layout="@layout/fragment_add_category" >
         <action
@@ -60,7 +60,7 @@
     </fragment>
     <fragment
         android:id="@+id/addImageFragment"
-        android:name="com.vedatakcan.inomaker.AddImageFragment"
+        android:name="com.vedatakcan.inomaker.view.AddImageFragment"
         android:label="fragment_add_image"
         tools:layout="@layout/fragment_add_image" >
         <action
