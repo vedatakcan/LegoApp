@@ -10,6 +10,8 @@
     <string name="hint_category_name">Kategori adı</string>
     <string name="active">Aktif mi?</string>
     <string name="add_category">Kategori Ekle</string>
+    <string name="category_image_content_description">Kategori görseli</string>
+
 
 
 
