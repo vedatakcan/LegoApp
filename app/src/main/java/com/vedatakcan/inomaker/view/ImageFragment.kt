@@ -9,10 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.Toast
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.firebase.firestore.FirebaseFirestore
@@ -21,11 +25,14 @@ import com.vedatakcan.inomaker.databinding.FragmentImageBinding
 import com.vedatakcan.inomaker.repositories.ImageRepository
 import com.vedatakcan.inomaker.viewmodel.ImageViewModel
 import com.vedatakcan.inomaker.viewmodel.ImageViewModelFactory
+import kotlinx.coroutines.launch
 
 
 class ImageFragment : Fragment() {
 
-    private lateinit var binding: FragmentImageBinding
+    private var _binding: FragmentImageBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var viewModel: ImageViewModel
     private lateinit var navController: NavController
 
@@ -35,7 +42,7 @@ class ImageFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        binding = FragmentImageBinding.inflate(inflater, container, false)
+        _binding = FragmentImageBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -44,11 +51,11 @@ class ImageFragment : Fragment() {
         navController = Navigation.findNavController(view)
 
         setupViewModel()
-        observeImages()
 
         val categoryId = arguments?.getString("categoryId")
         categoryId?.let { viewModel.fetchImages(it) }
 
+        observeImages()
         disableSeekBar(binding.horizontalProgressBar)
         setupButtonListeners()
     }
@@ -61,16 +68,34 @@ class ImageFragment : Fragment() {
     }
 
     private fun observeImages() {
-        viewModel.images.observe(viewLifecycleOwner) { images ->
-            imageList = images ?: emptyList()
-            currentImageIndex = 0
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.images.collect { images ->
+                    imageList = images
+                    if (imageList.isNotEmpty()) {
+                        currentImageIndex = 0
+                        displayImage(currentImageIndex)
 
-            if (imageList.isNotEmpty()) {
-                displayImage(currentImageIndex)
-            } else {
-                binding.imageView.setImageDrawable(null)
-                updateNavigationButtons()
+                        // İlk başta tüm resimleri preload et
+                        preloadAllImages()
+                    } else {
+                        binding.imageView.setImageDrawable(null)
+                        updateNavigationButtons()
+                    }
+                }
             }
+        }
+    }
+
+    private fun preloadAllImages() {
+        // Tüm görselleri arka planda yükleyelim
+        imageList.forEach { imageUrl ->
+            Glide.with(requireContext())
+                .load(imageUrl)
+                .diskCacheStrategy(DiskCacheStrategy.ALL) // Disk cache kullan
+                .skipMemoryCache(true)  // Bellek cache'ini atla, sadece disk cache kullan
+                .override(500, 300) // Küçük boyutlarda yükle
+                .preload() // Arka planda yükleme
         }
     }
 
@@ -79,9 +104,13 @@ class ImageFragment : Fragment() {
 
         binding.imageLoadingProgress.visibility = View.VISIBLE
 
+        // Glide ile görseli yükleyip hemen ekranda gösteriyoruz
         Glide.with(requireContext())
             .load(imageUrl)
+            .diskCacheStrategy(DiskCacheStrategy.ALL) // Disk cache kullanarak hızlı yükleme
+            .skipMemoryCache(true)  // Bellek cache'i atlıyoruz
             .centerCrop()
+            .override(500, 300) // 📏 Genişlik: 500px, Yükseklik: 300px
             .into(object : CustomTarget<Drawable>() {
                 override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                     binding.imageView.setImageDrawable(resource)
@@ -136,4 +165,11 @@ class ImageFragment : Fragment() {
         seekBar.isEnabled = false
         seekBar.isClickable = false
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
+
+
