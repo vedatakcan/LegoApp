@@ -74,7 +74,7 @@ class AddImageFragment : Fragment() {
         }
 
         // Resim seçme butonuna tıklama işlemi.
-        binding.chooseImage.setOnClickListener {
+        binding.btnChooseImage.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 type = "image/*"
                 putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
